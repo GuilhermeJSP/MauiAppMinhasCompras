@@ -1,6 +1,6 @@
 namespace MauiAppMinhasCompras.Views;
 
-public partial class ListaProduto : ContentView
+public partial class ListaProduto : ContentPage
 {
 	public ListaProduto()
 	{
