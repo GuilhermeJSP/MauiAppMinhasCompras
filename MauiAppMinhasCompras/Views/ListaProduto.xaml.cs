@@ -67,19 +67,58 @@ public partial class ListaProduto : ContentPage
         }
     }
 
-    private void ToolbarItem_Clicked_1(object sender, EventArgs e)
+    private async void Txt_categoria_TextChanger(object sender, TextChangedEventArgs e)
     {
-        try { 
-        double soma = lista.Sum(i => i.Total);
+        try
+        {
+            string categoria = e.NewTextValue;
+            lst_produtos.IsRefreshing = true;
 
-        string msg = $"O total é {soma:C}";
+            lista.Clear();
 
-        DisplayAlert("Total dos Produtos", msg, "OK");
+            List<Produto> tmp = await App.Db.SearchCategoria(categoria);
+
+            tmp.ForEach(i => lista.Add(i));
+
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ops", ex.Message, "OK");
+        }
+        finally
+        {
+            lst_produtos.IsRefreshing = false;
+        }
+    }
+
+    private async void ToolbarItem_Clicked_1(object sender, EventArgs e)
+    {
+        try {
+            var listaProdutos = await App.Db.GetAll();
+
+            var grupos = listaProdutos
+                .GroupBy(p => p.Categoria);
+
+            string msg = "";
+            double totalGeral = 0;
+
+            foreach (var grupo in grupos)
+            {
+                double totalCategoria = grupo.Sum(p => p.Total);
+
+                msg += $"{grupo.Key} → {totalCategoria:C}\n";
+
+                totalGeral += totalCategoria;
+            }
+
+            msg += $"\nValor Total → {totalGeral:C}";
+
+            await DisplayAlert("Relatório por Categoria", msg, "OK");
         }
 
         catch (Exception ex)
         {
-            DisplayAlert("Ops", ex.Message, "OK");
+            await DisplayAlert("Ops", ex.Message, "OK");
         }
     }
 
